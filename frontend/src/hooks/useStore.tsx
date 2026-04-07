@@ -19,7 +19,7 @@ export const useStore = create<StoreState>((set) => ({
     temperature: 24.5,
     humidity: 42,
   },
-  selectedPlant: "tomatoes",
+  selectedPlant: "mint",
   setSensor: (key, value) =>
     set((state) => ({ sensors: { ...state.sensors, [key]: value } })),
   setSelectedPlant: (plant) => set({ selectedPlant: plant }),

@@ -7,9 +7,9 @@ interface Plant {
 }
 
 const PLANTS: Plant[] = [
-  { id: "lettuce", label: "Lettuce", emoji: "🥬" },
-  { id: "tomatoes", label: "Tomatoes", emoji: "🍅" },
-  { id: "basil", label: "Basil", emoji: "🌿" },
+  { id: "thyme", label: "Thyme", emoji: "🌿" },
+  { id: "basil", label: "Basil", emoji: "emoji" },
+  { id: "mint", label: "Mint", emoji: "🍃" },
 ];
 
 export default function PlantPanel() {
