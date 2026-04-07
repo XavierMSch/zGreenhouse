@@ -6,6 +6,7 @@ import { Pot } from "../models/Pot";
 import { Basil } from "../models/Basil";
 import { Mint } from "../models/Mint";
 import { Rosemary } from "../models/Rosemary";
+import { Thyme } from "../models/Thyme";
 
 export default function Scene() {
   const selectedPlant = useStore((state) => state.selectedPlant);
@@ -22,6 +23,7 @@ export default function Scene() {
       {selectedPlant === "rosemary" && <Rosemary />}
       {selectedPlant === "basil" && <Basil />}
       {selectedPlant === "mint" && <Mint />}
+      {selectedPlant === "thyme" && <Thyme />}
       <OrbitControls makeDefault />
       <Environment preset="forest" />
     </Canvas>
