@@ -8,7 +8,7 @@ interface Plant {
 
 const PLANTS: Plant[] = [
   { id: "thyme", label: "Thyme", emoji: "🌿" },
-  { id: "basil", label: "Basil", emoji: "🌿" },
+  { id: "basil", label: "Basil", emoji: "emoji" },
   { id: "mint", label: "Mint", emoji: "🍃" },
 ];
 
