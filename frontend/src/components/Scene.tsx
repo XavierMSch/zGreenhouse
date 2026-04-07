@@ -7,8 +7,7 @@ import { Basil } from "../models/Basil";
 import { Mint } from "../models/Mint";
 import { Rosemary } from "../models/Rosemary";
 import { Thyme } from "../models/Thyme";
-import { Chrizantemos } from "../models/Chrizantemos";
-import { GreenhouseLight } from './canvas/GreenhouseLight';
+import { GreenhouseLight } from "./canvas/GreenhouseLight";
 
 export default function Scene() {
   const selectedPlant = useStore((state) => state.selectedPlant);
