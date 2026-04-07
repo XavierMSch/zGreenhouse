@@ -9,7 +9,7 @@ export default function Scene() {
       className="w-full h-full"
     >
       <Greenhouse />
-      <OrbitControls makeDefault />
+      <OrbitControls minDistance={0.2} maxDistance={2} makeDefault />
       <Environment preset="forest" />
     </Canvas>
   );
