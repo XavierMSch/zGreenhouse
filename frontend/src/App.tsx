@@ -1,6 +1,6 @@
 import Scene from "./components/Scene";
-import SensorPanel from "./components/panels/SensorPanel";
-import PlantPanel from "./components/panels/PlantPanel";
+import SensorPanel from "./components/ui/panels/SensorPanel";
+import PlantPanel from "./components/ui/panels/PlantPanel";
 
 export default function App() {
   return (
