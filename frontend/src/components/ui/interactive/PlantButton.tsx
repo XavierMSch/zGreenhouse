@@ -1,0 +1,32 @@
+import { useStore } from '../../../hooks/useStore';
+import type { PlantData } from '../../../interfaces/PlantData';
+
+interface PlantButtonProps {
+    data: PlantData
+}
+
+export default function PlantButton(props: PlantButtonProps) {
+    const plantData = props.data;
+    const selectedPlant = useStore((s) => s.selectedPlant);
+    const setSelectedPlant = useStore((s) => s.setSelectedPlant);
+    const active = selectedPlant === plantData.name;
+    return (
+        <button
+            key={plantData.name}
+            onClick={() => setSelectedPlant(plantData.name)}
+            className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all
+            ${
+                active
+                ? "bg-emerald-500/20 border-emerald-400/50"
+                : "bg-white/5 border-transparent hover:border-emerald-400/30"
+            }`}
+        >
+            <span className="text-3xl">{plantData.emoji}</span>
+            <span
+                className={`text-[10px] font-bold ${active ? "text-emerald-400" : "text-slate-400"}`}
+            >
+                {plantData.label.toUpperCase()}
+            </span>
+        </button>
+    )
+}
