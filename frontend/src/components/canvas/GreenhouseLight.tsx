@@ -6,13 +6,11 @@ export function GreenhouseLight() {
   const intensity = (sunlight / 20); 
 
   return (
-    <group>
-      <directionalLight
-        position={[5, 10, 5]}
-        intensity={intensity}
-        color="#fff9e6"
-        castShadow
-      />
-    </group>
+    <directionalLight
+      position={[5, 10, 5]}
+      intensity={intensity}
+      color="#fff9e6"
+      castShadow
+    />
   );
 }
