@@ -1,5 +1,5 @@
-import { SENSORS } from '../../../configs/SensorsConfig';
-import SensorSlider from '../interactive/SensorSlider';
+import { SENSORS } from "../../../configs/SensorsConfig";
+import SensorSlider from "../interactive/SensorSlider";
 
 export default function SensorPanel() {
   return (
@@ -7,7 +7,7 @@ export default function SensorPanel() {
       <h2 className="text-white font-bold text-lg mb-6">Sensor Controls</h2>
       <div className="space-y-6">
         {SENSORS.map((data) => (
-          <SensorSlider key={data.key} data={data}/>
+          <SensorSlider key={data.key} data={data} />
         ))}
       </div>
     </div>
