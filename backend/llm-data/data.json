@@ -1,0 +1,60 @@
+{
+  "reglas_cultivo": {
+    "albahaca": {
+      "rangos_optimos": {
+        "temperatura_min": 18.0,
+        "temperatura_max": 29.0,
+        "humedad_min": 50.0,
+        "humedad_max": 60.0,
+        "vpd_min": 1.0,
+        "vpd_max": 1.8
+      },
+      "acciones_sugeridas": {
+        "vpd_alto": "cerrar",
+        "vpd_bajo": "abrir"
+      }
+    },
+    "menta": {
+      "rangos_optimos": {
+        "temperatura_min": 18.0,
+        "temperatura_max": 24.0,
+        "humedad_min": 40.0,
+        "humedad_max": 60.0,
+        "vpd_min": 1.0,
+        "vpd_max": 1.8
+      },
+      "acciones_sugeridas": {
+        "vpd_alto": "cerrar",
+        "vpd_bajo": "abrir"
+      }
+    },
+    "romero": {
+      "rangos_optimos": {
+        "temperatura_min": 13.0,
+        "temperatura_max": 24.0,
+        "humedad_min": 40.0,
+        "humedad_max": 50.0,
+        "vpd_min": 1.0,
+        "vpd_max": 1.8
+      },
+      "acciones_sugeridas": {
+        "vpd_alto": "cerrar",
+        "vpd_bajo": "abrir"
+      }
+    },
+    "tomillo": {
+      "rangos_optimos": {
+        "temperatura_min": 13.0,
+        "temperatura_max": 24.0,
+        "humedad_min": 40.0,
+        "humedad_max": 50.0,
+        "vpd_min": 1.0,
+        "vpd_max": 1.8
+      },
+      "acciones_sugeridas": {
+        "vpd_alto": "cerrar",
+        "vpd_bajo": "abrir"
+      }
+    }
+  }
+}
