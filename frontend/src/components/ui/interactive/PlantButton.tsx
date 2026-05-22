@@ -1,4 +1,5 @@
 import { useStore } from '../../../hooks/useStore';
+import { setActivePlantId } from '../../../lib/plantApi';
 import type { PlantData } from '../../../interfaces/PlantData';
 
 interface PlantButtonProps {
@@ -13,7 +14,12 @@ export default function PlantButton(props: PlantButtonProps) {
     return (
         <button
             key={plantData.name}
-            onClick={() => setSelectedPlant(plantData.name)}
+            onClick={() => {
+                setSelectedPlant(plantData.name);
+                void setActivePlantId(plantData.id).catch((error) => {
+                    console.error('Failed to update active plant', error);
+                });
+            }}
             className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all
             ${
                 active
