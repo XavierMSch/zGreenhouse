@@ -1,8 +1,9 @@
-import type { ComponentType } from 'react';
+import type { ComponentType } from "react";
 
-type Plant = 'basil' | 'rosemary' | 'mint' | 'thyme'
+type Plant = "basil" | "rosemary" | "mint" | "thyme";
 
 export interface PlantData {
+  id: number;
   name: Plant;
   label: string;
   emoji: string;
