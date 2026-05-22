@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import Any
+import json
 
 import database
+import llm_service
 import models
 import schemas
 
@@ -74,8 +77,67 @@ def read_telemetrias(planta_id: int, db: Session = Depends(database.get_db)):
 
 
 @router.get("/recomendacion")
-def get_recommendacion():
-    # 1. Obtén lecturas de la última hora de tu DB
-    # 2. Llama al LLM con ollama
-    # 3. Retorna {"recommendation": "...", "command": "OPEN"} o {"command": None}
-    ...
+def get_recomendacion(db: Session = Depends(database.get_db)):
+    estado_sistema = (
+        db.query(models.EstadoSistema).filter(models.EstadoSistema.id == 1).first()
+    )
+    if not estado_sistema:
+        raise HTTPException(status_code=404, detail="No hay planta configurada")
+
+    planta = (
+        db.query(models.Planta)
+        .filter(models.Planta.id == estado_sistema.planta_activa_id)
+        .first()
+    )
+    if not planta:
+        raise HTTPException(status_code=404, detail="Planta no encontrada")
+
+    telemetrias = (
+        db.query(models.Telemetria)
+        .filter(models.Telemetria.planta_id == planta.id)
+        .order_by(models.Telemetria.timestamp.desc())
+        .limit(20)
+        .all()
+    )
+    if not telemetrias:
+        raise HTTPException(status_code=404, detail="No hay telemetría disponible")
+
+    contexto: list[dict[str, Any]] = []
+    for telemetria in reversed(telemetrias):
+        contexto.append(
+            {
+                "timestamp": telemetria.timestamp.isoformat(),
+                "temperatura": telemetria.temperatura,
+                "humedad": telemetria.humedad,
+                "vpd": llm_service.calcular_vpd(
+                    telemetria.temperatura, telemetria.humedad
+                ),
+            }
+        )
+
+    prompt_usuario = llm_service.construir_prompt_usuario(
+        planta=planta.nombre,
+        contexto=contexto,
+    )
+
+    rec = llm_service.obtener_recomendacion(prompt_usuario)
+
+    rec_dict = rec if isinstance(rec, dict) else json.loads(rec)
+
+    comando_llm = rec_dict.get("comando")
+    if comando_llm and comando_llm.lower() == "none":
+        comando_llm = None
+
+    db_rec = models.RecomendacionLLM(
+        planta_id=planta.id,
+        mensaje=rec_dict.get("mensaje"),
+        severidad=rec_dict.get("severidad"),
+        comando=comando_llm,
+        contexto=json.dumps(contexto),
+    )
+
+    db.add(db_rec)
+    db.commit()
+    db.refresh(db_rec)
+
+    return rec

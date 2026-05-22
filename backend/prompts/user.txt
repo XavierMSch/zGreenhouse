@@ -1,0 +1,10 @@
+{
+  "planta": "romero",
+  "contexto": [
+    {
+    "temperatura": valor_temp_,
+    "humedad": valor_humedad,
+    "vpd": 1.4
+  }
+  ]
+}
