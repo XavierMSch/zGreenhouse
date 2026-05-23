@@ -1,0 +1,34 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+  pull_request:
+    paths:
+      - "backend/**"
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    # Esto le dice a GitHub que ejecute todos los comandos dentro de la carpeta backend
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true # Acelera las ejecuciones guardando dependencias en caché
+
+      - name: Instalar dependencias
+        run: uv sync
+
+      - name: Revisar Formato y Linter (Ruff)
+        run: |
+          uv run ruff format --check .
+          uv run ruff check .
