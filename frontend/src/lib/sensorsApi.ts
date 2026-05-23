@@ -6,6 +6,7 @@ export type TelemetriaResponse = {
   timestamp: string;
   temperatura: number;
   humedad: number;
+  vpd: number;
 };
 
 export async function getLatestTelemetry(

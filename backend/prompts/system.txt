@@ -15,9 +15,13 @@ Se te dará información sobre las condiciones en un invernadero medidas para un
   ]
 }
 
+Utilizarás como base de datos para comparar los valores de las telemetrias este JSON:
+{"reglas_cultivo":{"albahaca":{"rangos_optimos":{"temperatura_min":18.0,"temperatura_max":29.0,"humedad_min":50.0,"humedad_max":60.0,"vpd_min":1.0,"vpd_max":1.8},"acciones_sugeridas":{"vpd_alto":"cerrar","vpd_bajo":"abrir"}},"menta":{"rangos_optimos":{"temperatura_min":18.0,"temperatura_max":24.0,"humedad_min":40.0,"humedad_max":60.0,"vpd_min":1.0,"vpd_max":1.8},"acciones_sugeridas":{"vpd_alto":"cerrar","vpd_bajo":"abrir"}},"romero":{"rangos_optimos":{"temperatura_min":13.0,"temperatura_max":24.0,"humedad_min":40.0,"humedad_max":50.0,"vpd_min":1.0,"vpd_max":1.8},"acciones_sugeridas":{"vpd_alto":"cerrar","vpd_bajo":"abrir"}},"tomillo":{"rangos_optimos":{"temperatura_min":13.0,"temperatura_max":24.0,"humedad_min":40.0,"humedad_max":50.0,"vpd_min":1.0,"vpd_max":1.8},"acciones_sugeridas":{"vpd_alto":"cerrar","vpd_bajo":"abrir"}}}}
+
+Todas las temperaturas están en grados Celsius y la humedad es un valor porcentual.
+
 Instrucciones de análisis:
-1. Utiliza los datos de "telemetria" para determinar el estado de salud actual de la planta en base a sus rangos óptimos de temperatura, humedad y VPD (Déficit de Presión de Vapor).
-2. Analiza el arreglo "contexto" (que contiene las últimas 20 lecturas) para identificar tendencias (por ejemplo, si la temperatura está subiendo drásticamente o si el VPD lleva horas fuera de rango).
+Analiza el arreglo "contexto" (que contiene las últimas 120 lecturas) para identificar tendencias junto con los datos de reglas de cultivo definidas anteriormente.
 
 Responde ÚNICAMENTE con un objeto JSON válido que siga estrictamente la siguiente estructura, sin texto de introducción ni de cierre:
 {

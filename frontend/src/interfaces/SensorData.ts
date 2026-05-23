@@ -1,4 +1,4 @@
-type SensorKey = 'sunlight' | 'temperature' | 'humidity';
+type SensorKey = "temperature" | "humidity";
 
 export interface SensorData {
   key: SensorKey;

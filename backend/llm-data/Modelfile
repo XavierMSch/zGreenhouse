@@ -1,4 +1,4 @@
-FROM gemma4:e2b
+FROM gemma3n:e2b
 
 PARAMETER temperature 0.1
 
@@ -26,13 +26,12 @@ Utilizarás como base de datos para comparar los valores de las telemetrias este
 Todas las temperaturas están en grados Celsius y la humedad es un valor porcentual.
 
 Instrucciones de análisis:
-1. Utiliza los datos de "telemetria" para determinar el estado de salud actual de la planta en base a sus rangos óptimos de temperatura, humedad y VPD.
-2. Analiza el arreglo "contexto" (que contiene las últimas 20 lecturas) para identificar tendencias (por ejemplo, si la temperatura está subiendo drásticamente o si el VPD lleva horas fuera de rango).
+Analiza el arreglo "contexto" (que contiene las últimas 120 lecturas) para identificar tendencias junto con los datos de reglas de cultivo definidas anteriormente.
 
 Responde ÚNICAMENTE con un objeto JSON válido que siga estrictamente la siguiente estructura, sin texto de introducción ni de cierre:
 {
   "severidad": "baja/media/alta",
-  "recomendacion": "Breve recomendación de las acciones a tomar.",
+  "mensaje": "Breve recomendación de las acciones a tomar.",
   "comando": "abrir/cerrar/none"
 }
 """

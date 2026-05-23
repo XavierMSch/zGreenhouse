@@ -1,19 +1,9 @@
-import type { SensorData } from '../interfaces/SensorData';
+import type { SensorData } from "../interfaces/SensorData";
 
 export const SENSORS: SensorData[] = [
   {
-    key: "sunlight",
-    label: "SUNLIGHT LEVEL",
-    icon: "☀️",
-    unit: "%",
-    color: "text-emerald-400",
-    min: 0,
-    max: 100,
-    step: 1,
-  },
-  {
     key: "temperature",
-    label: "TEMPERATURE",
+    label: "TEMPERATURA",
     icon: "🌡️",
     unit: "°C",
     color: "text-sky-400",
@@ -23,7 +13,7 @@ export const SENSORS: SensorData[] = [
   },
   {
     key: "humidity",
-    label: "HUMIDITY",
+    label: "HUMEDAD",
     icon: "💧",
     unit: "%",
     color: "text-teal-300",

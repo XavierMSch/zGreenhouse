@@ -23,7 +23,6 @@ type RecommendationRequest = {
   plantName?: string;
   temperatura?: number;
   humedad?: number;
-  luz?: number;
 };
 
 const SEVERITY_MAP: Record<string, NotificationSeverity> = {
@@ -43,7 +42,6 @@ export async function getRecommendation(
           planta_nombre: request.plantName,
           temperatura: request.temperatura,
           humedad: request.humedad,
-          luz: request.luz,
         }),
       })
     : fetch(`${API_BASE_URL}/recomendacion`));

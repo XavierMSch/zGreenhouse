@@ -2,11 +2,10 @@ import machine
 import dht
 import time
 import json
-import sys
 
 DHT_PIN = 15
 
-INTERVALO_LECTURA = 30
+INTERVALO_LECTURA = 10
 
 sensor = dht.DHT22(machine.Pin(DHT_PIN))
 

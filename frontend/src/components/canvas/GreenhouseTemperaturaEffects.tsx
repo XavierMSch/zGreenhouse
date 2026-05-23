@@ -11,7 +11,10 @@ export function GreenhouseTemperatureEffects() {
   const aberrationRef = useRef<ChromaticAberrationEffect>(null);
 
   useFrame((state) => {
-    const temperature = useStore.getState().sensors.temperature;
+    const storeState = useStore.getState();
+    const temperature = storeState.isSimulationMode
+      ? storeState.sensors.temperature
+      : storeState.telemetrySensors.temperature;
 
     if (aberrationRef.current) {
       const distortionAmount = MathUtils.clamp(
