@@ -18,11 +18,14 @@ def calcular_vpd(temperatura: float, humedad: float) -> float:
 def construir_prompt_usuario(
     planta: str,
     contexto: list[dict[str, float | str]],
+    telemetria: dict[str, float] | None = None,
 ) -> str:
     payload: dict[str, Any] = {
         "planta": planta,
         "contexto": contexto,
     }
+    if telemetria is not None:
+        payload["telemetria"] = telemetria
     return json.dumps(payload, ensure_ascii=False)
 
 
