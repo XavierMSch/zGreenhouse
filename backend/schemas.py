@@ -30,6 +30,7 @@ class Telemetria(TelemetriaBase):
     id: int
     planta_id: int
     timestamp: datetime
+    vpd: float
     model_config = ConfigDict(from_attributes=True)
 
 

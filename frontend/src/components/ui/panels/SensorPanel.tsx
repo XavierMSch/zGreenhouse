@@ -48,7 +48,7 @@ export default function SensorPanel() {
     };
 
     fetchTelemetry();
-    intervalId = setInterval(fetchTelemetry, 30000);
+    intervalId = setInterval(fetchTelemetry, 5000);
 
     return () => {
       isMounted = false;

@@ -9,6 +9,7 @@ dependencies = [
     "fastapi[standard]>=0.136.1",
     "httpx>=0.28.1",
     "mpremote>=1.28.0",
+    "ollama>=0.6.2",
     "pyserial>=3.5",
     "requests>=2.33.1",
     "sqlalchemy>=2.0.49",

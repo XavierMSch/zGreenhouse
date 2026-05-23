@@ -7,6 +7,7 @@ import database
 import llm_service
 import models
 import schemas
+import vpd
 
 router = APIRouter()
 
@@ -54,7 +55,9 @@ def create_telemetria(
         raise HTTPException(status_code=404, detail="No hay planta configurada")
 
     db_telemetria = models.Telemetria(
-        planta_id=estado_sistema.planta_activa_id, **data.model_dump()
+        planta_id=estado_sistema.planta_activa_id,
+        vpd=vpd.calcular_vpd(data.temperatura, data.humedad),
+        **data.model_dump(),
     )
 
     db.add(db_telemetria)
@@ -96,7 +99,7 @@ def get_recomendacion(db: Session = Depends(database.get_db)):
         db.query(models.Telemetria)
         .filter(models.Telemetria.planta_id == planta.id)
         .order_by(models.Telemetria.timestamp.desc())
-        .limit(20)
+        .limit(120)
         .all()
     )
     if not telemetrias:
@@ -109,9 +112,7 @@ def get_recomendacion(db: Session = Depends(database.get_db)):
                 "timestamp": telemetria.timestamp.isoformat(),
                 "temperatura": telemetria.temperatura,
                 "humedad": telemetria.humedad,
-                "vpd": llm_service.calcular_vpd(
-                    telemetria.temperatura, telemetria.humedad
-                ),
+                "vpd": telemetria.vpd,
             }
         )
 
@@ -148,7 +149,7 @@ def get_recomendacion_simulacion(data: schemas.SimulacionRequest):
     telemetria = {
         "temperatura": data.temperatura,
         "humedad": data.humedad,
-        "vpd": llm_service.calcular_vpd(data.temperatura, data.humedad),
+        "vpd": vpd.calcular_vpd(data.temperatura, data.humedad),
     }
     prompt_usuario = llm_service.construir_prompt_usuario(
         planta=data.planta_nombre,

@@ -31,6 +31,7 @@ class Telemetria(Base):
     )
     temperatura: Mapped[float] = mapped_column(Float)
     humedad: Mapped[float] = mapped_column(Float)
+    vpd: Mapped[float] = mapped_column(Float)
 
     planta: Mapped["Planta"] = relationship("Planta", back_populates="telemetrias")
 
