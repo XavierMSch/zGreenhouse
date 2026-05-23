@@ -141,3 +141,19 @@ def get_recomendacion(db: Session = Depends(database.get_db)):
     db.refresh(db_rec)
 
     return rec
+
+
+@router.post("/recomendacion/simulacion")
+def get_recomendacion_simulacion(data: schemas.SimulacionRequest):
+    telemetria = {
+        "temperatura": data.temperatura,
+        "humedad": data.humedad,
+        "vpd": llm_service.calcular_vpd(data.temperatura, data.humedad),
+    }
+    prompt_usuario = llm_service.construir_prompt_usuario(
+        planta=data.planta_nombre,
+        contexto=[],
+        telemetria=telemetria,
+    )
+
+    return llm_service.obtener_recomendacion(prompt_usuario)
