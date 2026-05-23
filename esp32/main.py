@@ -2,7 +2,6 @@ import machine
 import dht
 import time
 import json
-import sys
 
 DHT_PIN = 15
 

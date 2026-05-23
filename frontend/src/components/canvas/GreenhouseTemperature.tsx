@@ -38,7 +38,9 @@ function getTemperatureColor(value: number): Color {
 }
 
 export function GreenhouseTemperature() {
-  const temperature = useStore((s) => s.sensors.temperature);
+  const temperature = useStore((s) =>
+    s.isSimulationMode ? s.sensors.temperature : s.telemetrySensors.temperature,
+  );
   const color = getTemperatureColor(temperature);
 
   return (

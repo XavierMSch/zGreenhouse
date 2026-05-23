@@ -5,11 +5,21 @@ import { getRecommendation } from "../../../lib/recommendationsApi";
 import { useStore } from "../../../hooks/useStore";
 
 export default function NotificationPanel() {
-  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [telemetryNotifications, setTelemetryNotifications] = useState<
+    NotificationData[]
+  >([]);
+  const [simulationNotifications, setSimulationNotifications] = useState<
+    NotificationData[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const isSimulationMode = useStore((state) => state.isSimulationMode);
-  const sensors = useStore((state) => state.sensors);
+  const { temperature, humidity } = useStore((state) => state.sensors);
   const selectedPlant = useStore((state) => state.selectedPlant);
+
+  const notifications = isSimulationMode
+    ? simulationNotifications
+    : telemetryNotifications;
+  const modeLabel = isSimulationMode ? "SIMULACIÓN" : "TIEMPO REAL";
 
   const fetchRecommendation = useCallback(async () => {
     setIsLoading(true);
@@ -17,25 +27,22 @@ export default function NotificationPanel() {
       const recommendation = await getRecommendation({
         mode: isSimulationMode ? "simulation" : "telemetry",
         plantName: selectedPlant,
-        temperatura: sensors.temperature,
-        humedad: sensors.humidity,
-        luz: sensors.sunlight,
+        temperatura: temperature,
+        humedad: humidity,
       });
       if (recommendation) {
-        setNotifications((prev) => [recommendation, ...prev]);
+        if (isSimulationMode) {
+          setSimulationNotifications((prev) => [recommendation, ...prev]);
+        } else {
+          setTelemetryNotifications((prev) => [recommendation, ...prev]);
+        }
       }
     } catch {
       // No-op: UI should reset the button state on failure.
     } finally {
       setIsLoading(false);
     }
-  }, [
-    isSimulationMode,
-    selectedPlant,
-    sensors.humidity,
-    sensors.sunlight,
-    sensors.temperature,
-  ]);
+  }, [isSimulationMode, selectedPlant, humidity, temperature]);
 
   useEffect(() => {
     if (isSimulationMode) {
@@ -72,8 +79,13 @@ export default function NotificationPanel() {
 
   return (
     <div className="bg-slate-900/70 backdrop-blur-xl h-full rounded-2xl p-6 border border-white/5 shadow-2xl w-80 pointer-events-auto flex flex-col">
-      <div>
-        <h2 className="text-white font-bold text-lg">Recommendations</h2>
+      <div className="flex items-baseline justify-between gap-3 mb-4">
+        <div>
+          <h2 className="text-white font-bold text-lg">Recomendaciones</h2>
+          <p className="text-xs uppercase tracking-[0.25em] text-slate-400 mt-1">
+            {modeLabel}
+          </p>
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2">
         {notifications.length === 0 ? (
@@ -93,7 +105,7 @@ export default function NotificationPanel() {
             onClick={fetchRecommendation}
             disabled={isLoading}
           >
-            {isLoading ? "LOADING..." : "ASK LLM"}
+            {isLoading ? "CARGANDO..." : "PEDIR RECOMENDACIÓN"}
           </button>
         </div>
       )}

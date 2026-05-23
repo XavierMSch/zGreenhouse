@@ -3,12 +3,15 @@ import { MathUtils } from "three";
 import { GreenhouseFrame } from "../../models/GreenhouseFrame";
 import { Snowflakes } from "../../models/effects/Snowflakes";
 import { useStore } from "../../hooks/useStore";
-import { GreenhouseLight } from "../canvas/GreenhouseLight";
 import { PottedPlant } from "../canvas/PottedPlant";
 import { GreenhouseTemperature } from "./GreenhouseTemperature";
 
 export function Greenhouse() {
-  const temperature = useStore((state) => state.sensors.temperature);
+  const temperature = useStore((state) =>
+    state.isSimulationMode
+      ? state.sensors.temperature
+      : state.telemetrySensors.temperature,
+  );
 
   const SNOW_START_TEMP = 5;
   const SNOW_FULL_TEMP = -5;
@@ -29,7 +32,6 @@ export function Greenhouse() {
       </Mask>
 
       <Snowflakes intensity={snowIntensity} maskId={1} />
-      <GreenhouseLight />
       <GreenhouseTemperature />
       <PottedPlant />
     </group>

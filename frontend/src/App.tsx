@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import Scene from "./components/Scene";
-import { HUDLayout } from './components/ui/HUDLayout';
-import { PLANTS } from './configs/PlantsConfig';
-import { useStore } from './hooks/useStore';
-import { getActivePlantId } from './lib/plantApi';
+import { HUDLayout } from "./components/ui/HUDLayout";
+import { PLANTS } from "./configs/PlantsConfig";
+import { useStore } from "./hooks/useStore";
+import { getActivePlantId } from "./lib/plantApi";
 
 export default function App() {
   const setSelectedPlant = useStore((state) => state.setSelectedPlant);
