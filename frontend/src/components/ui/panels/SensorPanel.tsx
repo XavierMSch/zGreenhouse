@@ -36,7 +36,7 @@ export default function SensorPanel() {
       if (!plantId) {
         if (isMounted) {
           setTelemetry(null);
-          setTelemetryError("No hay planta activa");
+          setTelemetryError("No active plant");
           setIsTelemetryLoading(false);
         }
         return;
@@ -45,7 +45,7 @@ export default function SensorPanel() {
       const latestTelemetry = await getLatestTelemetry(plantId);
       if (isMounted) {
         setTelemetry(latestTelemetry);
-        setTelemetryError(latestTelemetry ? null : "Sin datos de telemetría");
+        setTelemetryError(latestTelemetry ? null : "No telemetry data");
         setIsTelemetryLoading(false);
 
         if (latestTelemetry) {
@@ -69,13 +69,13 @@ export default function SensorPanel() {
     <div className="bg-slate-900/70 backdrop-blur-xl rounded-2xl p-6 border border-white/5 shadow-2xl w-80 pointer-events-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-white font-bold text-lg">
-          {isSimulationMode ? "Controles" : "Telemetría"}
+          {isSimulationMode ? "Sensor Controls" : "Telemetry"}
         </h2>
         <button
           onClick={toggleMode}
           className="py-3 px-3 text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 font-bold rounded-xl"
         >
-          CAMBIAR MODO
+          CHANGE MODE
         </button>
       </div>
 
@@ -99,17 +99,17 @@ export default function SensorPanel() {
       {!isSimulationMode && (
         <>
           <div className="flex justify-between text-xs uppercase tracking-[0.25em] text-slate-400 mb-4">
-            <span>Telemetría en tiempo real</span>
+            <span>Real-time telemetry</span>
             <span>Fuente: backend</span>
           </div>
           <div className="flex justify-between text-xl font-medium text-slate-400 mb-6">
-            TEMPERATURA
+            TEMPERATURE
             <span className="text-sky-400">
               {telemetry ? `${telemetry.temperatura.toFixed(1)}°C` : "--"}
             </span>
           </div>
           <div className="flex justify-between text-xl font-medium text-slate-400 mb-6">
-            HUMEDAD
+            HUMIDITY
             <span className="text-teal-400">
               {telemetry ? `${Math.round(telemetry.humedad)}%` : "--"}
             </span>
@@ -121,12 +121,10 @@ export default function SensorPanel() {
             </span>
           </div>
           <div className="mt-4 text-xs text-slate-500">
-            {isTelemetryLoading && "Cargando telemetría..."}
+            {isTelemetryLoading && "Loading telemetry..."}
             {!isTelemetryLoading && telemetryError && telemetryError}
             {!isTelemetryLoading && !telemetryError && telemetry && (
-              <>
-                Actualizado {new Date(telemetry.timestamp).toLocaleTimeString()}
-              </>
+              <>Updated {new Date(telemetry.timestamp).toLocaleTimeString()}</>
             )}
           </div>
         </>

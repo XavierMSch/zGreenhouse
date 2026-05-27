@@ -61,4 +61,3 @@ class SimulacionRequest(BaseModel):
     planta_nombre: str
     temperatura: float
     humedad: float
-    luz: float
