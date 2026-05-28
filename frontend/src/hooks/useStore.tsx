@@ -26,7 +26,7 @@ export const useStore = create<StoreState>((set) => ({
     humidity: 42,
   },
   selectedPlant: "mint",
-  isSimulationMode: true,
+  isSimulationMode: false,
   setSensor: (key, value) =>
     set((state) => ({ sensors: { ...state.sensors, [key]: value } })),
   setTelemetrySensor: (key, value) =>

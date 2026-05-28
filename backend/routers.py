@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Any
+from datetime import datetime, timedelta, timezone
 import json
 
 import database
@@ -8,6 +9,7 @@ import llm_service
 import models
 import schemas
 import vpd
+from telemetria_analisis import resumir_telemetria
 
 router = APIRouter()
 
@@ -79,8 +81,8 @@ def read_telemetrias(planta_id: int, db: Session = Depends(database.get_db)):
     )
 
 
-@router.get("/recomendacion")
-def get_recomendacion(db: Session = Depends(database.get_db)):
+@router.get("/recomendacion", response_model=schemas.RecomendacionResponse)
+async def get_recomendacion(db: Session = Depends(database.get_db)):
     estado_sistema = (
         db.query(models.EstadoSistema).filter(models.EstadoSistema.id == 1).first()
     )
@@ -95,19 +97,22 @@ def get_recomendacion(db: Session = Depends(database.get_db)):
     if not planta:
         raise HTTPException(status_code=404, detail="Planta no encontrada")
 
+    hace_media_hora = datetime.now(timezone.utc) - timedelta(minutes=30)
     telemetrias = (
         db.query(models.Telemetria)
-        .filter(models.Telemetria.planta_id == planta.id)
-        .order_by(models.Telemetria.timestamp.desc())
-        .limit(120)
+        .filter(
+            models.Telemetria.planta_id == planta.id,
+            models.Telemetria.timestamp >= hace_media_hora,
+        )
+        .order_by(models.Telemetria.timestamp.asc())
         .all()
     )
     if not telemetrias:
         raise HTTPException(status_code=404, detail="No hay telemetría disponible")
 
-    contexto: list[dict[str, Any]] = []
-    for telemetria in reversed(telemetrias):
-        contexto.append(
+    contexto_completo: list[dict[str, Any]] = []
+    for telemetria in telemetrias:
+        contexto_completo.append(
             {
                 "timestamp": telemetria.timestamp.isoformat(),
                 "temperatura": telemetria.temperatura,
@@ -116,45 +121,83 @@ def get_recomendacion(db: Session = Depends(database.get_db)):
             }
         )
 
+    contexto_resumen = resumir_telemetria(telemetrias, nombre_planta=planta.nombre)
     prompt_usuario = llm_service.construir_prompt_usuario(
         planta=planta.nombre,
-        contexto=contexto,
+        contexto_resumen=contexto_resumen,
     )
 
-    rec = llm_service.obtener_recomendacion(prompt_usuario)
-
-    rec_dict = rec if isinstance(rec, dict) else json.loads(rec)
-
-    comando_llm = rec_dict.get("comando")
-    if comando_llm and comando_llm.lower() == "none":
-        comando_llm = None
+    try:
+        rec = await llm_service.obtener_recomendacion(prompt_usuario)
+    except llm_service.LLMServiceError as e:
+        raise HTTPException(status_code=503, detail=str(e))
 
     db_rec = models.RecomendacionLLM(
         planta_id=planta.id,
-        mensaje=rec_dict.get("mensaje"),
-        severidad=rec_dict.get("severidad"),
-        comando=comando_llm,
-        contexto=json.dumps(contexto),
+        mensaje=rec.mensaje,
+        severidad=rec.severidad,
+        comando=rec.comando,
+        contexto=json.dumps(contexto_completo),
     )
 
     db.add(db_rec)
     db.commit()
     db.refresh(db_rec)
 
-    return rec
+    return schemas.RecomendacionResponse(
+        mensaje=rec.mensaje,
+        severidad=rec.severidad,
+        comando=rec.comando,
+    )
 
 
-@router.post("/recomendacion/simulacion")
-def get_recomendacion_simulacion(data: schemas.SimulacionRequest):
-    telemetria = {
-        "temperatura": data.temperatura,
-        "humedad": data.humedad,
-        "vpd": vpd.calcular_vpd(data.temperatura, data.humedad),
+@router.post("/recomendacion/simulacion", response_model=schemas.RecomendacionResponse)
+async def get_recomendacion_simulacion(data: schemas.SimulacionRequest):
+    vpd_val = vpd.calcular_vpd(data.temperatura, data.humedad)
+    contexto_resumen = {
+        "actual": {
+            "temperatura": data.temperatura,
+            "humedad": data.humedad,
+            "vpd": vpd_val,
+        },
+        "estadisticas": {
+            "temperatura": {
+                "min": data.temperatura,
+                "max": data.temperatura,
+                "avg": data.temperatura,
+            },
+            "humedad": {
+                "min": data.humedad,
+                "max": data.humedad,
+                "avg": data.humedad,
+            },
+            "vpd": {
+                "min": vpd_val,
+                "max": vpd_val,
+                "avg": vpd_val,
+            },
+        },
+        "tendencia": {
+            "temperatura": "estable",
+            "humedad": "estable",
+            "vpd": "estable",
+        },
+        "eventos": [],
+        "minutos_registro": 0,
+        "total_lecturas": 1,
     }
     prompt_usuario = llm_service.construir_prompt_usuario(
         planta=data.planta_nombre,
-        contexto=[],
-        telemetria=telemetria,
+        contexto_resumen=contexto_resumen,
     )
 
-    return llm_service.obtener_recomendacion(prompt_usuario)
+    try:
+        rec = await llm_service.obtener_recomendacion(prompt_usuario)
+    except llm_service.LLMServiceError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    return schemas.RecomendacionResponse(
+        mensaje=rec.mensaje,
+        severidad=rec.severidad,
+        comando=rec.comando,
+    )

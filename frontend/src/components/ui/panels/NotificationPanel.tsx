@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { NotificationData } from "../../../interfaces/NotificationData";
 import NotificationCard from "../interactive/NotificationCard";
-import { getRecommendation } from "../../../lib/recommendationsApi";
+import {
+  getRecommendation,
+  type RecommendationError,
+} from "../../../lib/recommendationsApi";
 import { useStore } from "../../../hooks/useStore";
 
 export default function NotificationPanel() {
@@ -12,6 +15,8 @@ export default function NotificationPanel() {
     NotificationData[]
   >([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastError, setLastError] = useState<RecommendationError | null>(null);
+  const isFetchingRef = useRef(false);
   const isSimulationMode = useStore((state) => state.isSimulationMode);
   const { temperature, humidity } = useStore((state) => state.sensors);
   const selectedPlant = useStore((state) => state.selectedPlant);
@@ -22,30 +27,55 @@ export default function NotificationPanel() {
   const modeLabel = isSimulationMode ? "SIMULACIÓN" : "TIEMPO REAL";
 
   const fetchRecommendation = useCallback(async () => {
+    console.log("[NotificationPanel] fetchRecommendation called", {
+      isSimulationMode,
+      selectedPlant,
+      temperature,
+      humidity,
+      isFetchingRef: isFetchingRef.current,
+    });
+    if (isFetchingRef.current) {
+      console.log("[NotificationPanel] Already fetching, skipping");
+      return;
+    }
+    isFetchingRef.current = true;
     setIsLoading(true);
     try {
-      const recommendation = await getRecommendation({
+      console.log("[NotificationPanel] Calling getRecommendation...");
+      const result = await getRecommendation({
         mode: isSimulationMode ? "simulation" : "telemetry",
         plantName: selectedPlant,
         temperatura: temperature,
         humedad: humidity,
       });
-      if (recommendation) {
+      console.log("[NotificationPanel] getRecommendation result:", result);
+      if (result.data) {
         if (isSimulationMode) {
-          setSimulationNotifications((prev) => [recommendation, ...prev]);
+          setSimulationNotifications((prev) => [result.data!, ...prev]);
         } else {
-          setTelemetryNotifications((prev) => [recommendation, ...prev]);
+          setTelemetryNotifications((prev) => [result.data!, ...prev]);
         }
+        setLastError(null);
+      } else if (result.error) {
+        setLastError(result.error);
       }
-    } catch {
-      // No-op: UI should reset the button state on failure.
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
     }
   }, [isSimulationMode, selectedPlant, humidity, temperature]);
 
+  const fetchRecommendationRef = useRef(fetchRecommendation);
+
   useEffect(() => {
+    console.log("[NotificationPanel] Syncing fetchRecommendationRef");
+    fetchRecommendationRef.current = fetchRecommendation;
+  }, [fetchRecommendation]);
+
+  useEffect(() => {
+    console.log("[NotificationPanel] Polling useEffect", { isSimulationMode });
     if (isSimulationMode) {
+      console.log("[NotificationPanel] Simulation mode, no polling");
       return;
     }
 
@@ -55,18 +85,24 @@ export default function NotificationPanel() {
     const initialDelayMs = 5000;
 
     const fetchOnInterval = async () => {
+      console.log("[NotificationPanel] fetchOnInterval triggered", { isMounted });
       if (!isMounted) {
         return;
       }
-      await fetchRecommendation();
+      await fetchRecommendationRef.current();
     };
 
+    console.log("[NotificationPanel] Setting up polling timeout", {
+      initialDelayMs,
+    });
     timeoutId = setTimeout(() => {
+      console.log("[NotificationPanel] Initial timeout fired");
       fetchOnInterval();
       intervalId = setInterval(fetchOnInterval, 90000);
     }, initialDelayMs);
 
     return () => {
+      console.log("[NotificationPanel] Polling cleanup");
       isMounted = false;
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -75,17 +111,23 @@ export default function NotificationPanel() {
         clearInterval(intervalId);
       }
     };
-  }, [fetchRecommendation, isSimulationMode]);
+  }, [isSimulationMode]);
 
   return (
     <div className="bg-slate-900/70 backdrop-blur-xl h-full rounded-2xl p-6 border border-white/5 shadow-2xl w-80 pointer-events-auto flex flex-col">
       <div className="flex items-baseline justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-white font-bold text-lg">Recomendaciones</h2>
+          <h2 className="text-white font-bold text-lg">Recommendations</h2>
           <p className="text-xs uppercase tracking-[0.25em] text-slate-400 mt-1">
             {modeLabel}
           </p>
         </div>
+        {lastError && (
+          <div
+            className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"
+            title="Error en la última consulta"
+          />
+        )}
       </div>
       <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2">
         {notifications.length === 0 ? (

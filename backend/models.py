@@ -44,8 +44,8 @@ class RecomendacionLLM(Base):
     timestamp: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
-    mensaje: Mapped[str] = mapped_column(Text)
-    severidad: Mapped[str] = mapped_column(String(20))
+    mensaje: Mapped[str] = mapped_column(Text, default="Sin recomendación disponible")
+    severidad: Mapped[str] = mapped_column(String(20), default="baja")
     contexto: Mapped[str] = mapped_column(Text)
     comando: Mapped[str] = mapped_column(
         String(20), nullable=True
