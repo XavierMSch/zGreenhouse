@@ -3,7 +3,7 @@ import type { SensorData } from "../interfaces/SensorData";
 export const SENSORS: SensorData[] = [
   {
     key: "temperature",
-    label: "TEMPERATURE",
+    label: "TEMPERATURA",
     icon: "🌡️",
     unit: "°C",
     color: "text-sky-400",
@@ -13,7 +13,7 @@ export const SENSORS: SensorData[] = [
   },
   {
     key: "humidity",
-    label: "HUMIDITY",
+    label: "HUMEDAD",
     icon: "💧",
     unit: "%",
     color: "text-teal-300",

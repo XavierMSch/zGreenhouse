@@ -37,7 +37,7 @@ export default function SensorPanel() {
       const latestTelemetry = await getLatestTelemetry(plantId);
       if (isMounted) {
         setTelemetry(latestTelemetry);
-        setTelemetryError(latestTelemetry ? null : "No telemetry data");
+        setTelemetryError(latestTelemetry ? null : "Sin datos de telemetría");
         setIsTelemetryLoading(false);
 
         if (latestTelemetry) {
@@ -61,13 +61,13 @@ export default function SensorPanel() {
     <div className="bg-slate-900/70 backdrop-blur-xl rounded-2xl p-6 border border-white/5 shadow-2xl w-80 pointer-events-auto">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-white font-bold text-lg">
-          {isSimulationMode ? "Sensor Controls" : "Telemetry"}
+          {isSimulationMode ? "Controles" : "Telemetría"}
         </h2>
         <button
           onClick={toggleMode}
           className="py-3 px-3 text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 font-bold rounded-xl"
         >
-          CHANGE MODE
+          CAMBIAR MODO
         </button>
       </div>
 
@@ -95,7 +95,7 @@ export default function SensorPanel() {
             <span>Fuente: backend</span>
           </div>
           <div className="flex justify-between text-xl font-medium text-slate-400 mb-6">
-            TEMPERATURE
+            TEMPERATURA
             <span className="text-sky-400">
               {telemetry ? `${telemetry.temperatura.toFixed(1)}°C` : "--"}
             </span>
@@ -113,10 +113,12 @@ export default function SensorPanel() {
             </span>
           </div>
           <div className="mt-4 text-xs text-slate-500">
-            {isTelemetryLoading && "Loading telemetry..."}
+            {isTelemetryLoading && "Cargando telemetría..."}
             {!isTelemetryLoading && telemetryError && telemetryError}
             {!isTelemetryLoading && !telemetryError && telemetry && (
-              <>Updated {new Date(telemetry.timestamp).toLocaleTimeString()}</>
+              <>
+                Actualizado {new Date(telemetry.timestamp).toLocaleTimeString()}
+              </>
             )}
           </div>
         </>

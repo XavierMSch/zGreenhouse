@@ -147,7 +147,7 @@ export default function NotificationPanel() {
             onClick={fetchRecommendation}
             disabled={isLoading}
           >
-            {isLoading ? "LOADING..." : "ASK LLM"}
+            {isLoading ? "CARGANDO..." : "PEDIR RECOMENDACIÓN"}
           </button>
         </div>
       )}
