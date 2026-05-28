@@ -1,5 +1,5 @@
 import { useStore } from "../../../stores/useStore";
-import { setActivePlantId } from "../../../lib/plantApi";
+import { setActivePlantId } from "../../../api/plantApi";
 import type { PlantData } from "../../../interfaces/PlantData";
 
 interface PlantButtonProps {

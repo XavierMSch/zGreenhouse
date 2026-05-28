@@ -1,96 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { NotificationData } from "../../../interfaces/NotificationData";
-import type { RecommendationError } from "../../../interfaces/Recommendations";
 import NotificationCard from "../interactive/NotificationCard";
-import { getRecommendation } from "../../../lib/recommendationsApi";
 import { useStore } from "../../../stores/useStore";
+import { useRecommendations } from "../../../hooks/useRecommendations";
 
 export default function NotificationPanel() {
-  const [telemetryNotifications, setTelemetryNotifications] = useState<
-    NotificationData[]
-  >([]);
-  const [simulationNotifications, setSimulationNotifications] = useState<
-    NotificationData[]
-  >([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastError, setLastError] = useState<RecommendationError | null>(null);
-  const isFetchingRef = useRef(false);
   const isSimulationMode = useStore((state) => state.isSimulationMode);
-  const { temperature, humidity } = useStore((state) => state.sensors);
-  const selectedPlant = useStore((state) => state.selectedPlant);
-
-  const notifications = isSimulationMode
-    ? simulationNotifications
-    : telemetryNotifications;
+  const { notifications, isLoading, lastError, fetchRecommendation } =
+    useRecommendations();
   const modeLabel = isSimulationMode ? "SIMULACIÓN" : "TIEMPO REAL";
-
-  const fetchRecommendation = useCallback(async () => {
-    if (isFetchingRef.current) {
-      return;
-    }
-    isFetchingRef.current = true;
-    setIsLoading(true);
-    try {
-      const result = await getRecommendation({
-        mode: isSimulationMode ? "simulation" : "telemetry",
-        plantName: selectedPlant,
-        temperatura: temperature,
-        humedad: humidity,
-      });
-      if (result.data) {
-        if (isSimulationMode) {
-          setSimulationNotifications((prev) => [result.data!, ...prev]);
-        } else {
-          setTelemetryNotifications((prev) => [result.data!, ...prev]);
-        }
-        setLastError(null);
-      } else if (result.error) {
-        setLastError(result.error);
-      }
-    } finally {
-      setIsLoading(false);
-      isFetchingRef.current = false;
-    }
-  }, [isSimulationMode, selectedPlant, humidity, temperature]);
-
-  const fetchRecommendationRef = useRef(fetchRecommendation);
-
-  useEffect(() => {
-    fetchRecommendationRef.current = fetchRecommendation;
-  }, [fetchRecommendation]);
-
-  useEffect(() => {
-    if (isSimulationMode) {
-      return;
-    }
-
-    let isMounted = true;
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    const initialDelayMs = 5000;
-
-    const fetchOnInterval = async () => {
-      if (!isMounted) {
-        return;
-      }
-      await fetchRecommendationRef.current();
-    };
-
-    timeoutId = setTimeout(() => {
-      fetchOnInterval();
-      intervalId = setInterval(fetchOnInterval, 90000);
-    }, initialDelayMs);
-
-    return () => {
-      isMounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [isSimulationMode]);
 
   return (
     <div className="bg-slate-900/70 backdrop-blur-xl h-full rounded-2xl p-6 border border-white/5 shadow-2xl w-80 pointer-events-auto flex flex-col">

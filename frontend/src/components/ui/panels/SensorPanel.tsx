@@ -1,62 +1,22 @@
-import { useEffect, useState } from "react";
 import { SENSORS } from "../../../configs/SensorsConfig";
 import { PLANTS } from "../../../configs/PlantsConfig";
 import SensorSlider from "../interactive/SensorSlider";
-import { getLatestTelemetry } from "../../../lib/sensorsApi";
-import type { TelemetriaResponse } from "../../../interfaces/SensorData";
-import { calculateVpd } from "../../../lib/vpd";
+import { calculateVpd } from "../../../utils/vpd";
 import { useStore } from "../../../stores/useStore";
+import { useTelemetry } from "../../../hooks/useTelemetry";
 
 export default function SensorPanel() {
   const isSimulationMode = useStore((state) => state.isSimulationMode);
   const setSimulationMode = useStore((state) => state.setSimulationMode);
-  const setTelemetrySensor = useStore((state) => state.setTelemetrySensor);
   const selectedPlant = useStore((state) => state.selectedPlant);
-  const [telemetry, setTelemetry] = useState<TelemetriaResponse | null>(null);
-  const [telemetryError, setTelemetryError] = useState<string | null>(null);
-  const [isTelemetryLoading, setIsTelemetryLoading] = useState(false);
   const sensors = useStore((state) => state.sensors);
-  const simulationVpd = calculateVpd(sensors.temperature, sensors.humidity);
-
   const plantId = PLANTS.find((p) => p.name === selectedPlant)?.id ?? null;
+  const simulationVpd = calculateVpd(sensors.temperature, sensors.humidity);
+  const { telemetry, telemetryError, isLoading: isTelemetryLoading } =
+    useTelemetry(plantId, !isSimulationMode);
 
   const toggleMode = () => setSimulationMode(!isSimulationMode);
 
-  useEffect(() => {
-    if (isSimulationMode || !plantId) {
-      return;
-    }
-
-    let isMounted = true;
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-
-    const fetchTelemetry = async () => {
-      setIsTelemetryLoading(true);
-      setTelemetryError(null);
-
-      const latestTelemetry = await getLatestTelemetry(plantId);
-      if (isMounted) {
-        setTelemetry(latestTelemetry);
-        setTelemetryError(latestTelemetry ? null : "Sin datos de telemetría");
-        setIsTelemetryLoading(false);
-
-        if (latestTelemetry) {
-          setTelemetrySensor("temperature", latestTelemetry.temperatura);
-          setTelemetrySensor("humidity", latestTelemetry.humedad);
-        }
-      }
-    };
-
-    fetchTelemetry();
-    intervalId = setInterval(fetchTelemetry, 5000);
-
-    return () => {
-      isMounted = false;
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [isSimulationMode, plantId, setTelemetrySensor]);
   return (
     <div className="bg-slate-900/70 backdrop-blur-xl rounded-2xl p-6 border border-white/5 shadow-2xl w-80 pointer-events-auto">
       <div className="flex justify-between items-center mb-6">
