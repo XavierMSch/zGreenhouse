@@ -91,7 +91,7 @@ export default function SensorPanel() {
       {!isSimulationMode && (
         <>
           <div className="flex justify-between text-xs uppercase tracking-[0.25em] text-slate-400 mb-4">
-            <span>Real-time telemetry</span>
+            <span>Telemetría en tiempo real</span>
             <span>Fuente: backend</span>
           </div>
           <div className="flex justify-between text-xl font-medium text-slate-400 mb-6">
@@ -101,7 +101,7 @@ export default function SensorPanel() {
             </span>
           </div>
           <div className="flex justify-between text-xl font-medium text-slate-400 mb-6">
-            HUMIDITY
+            HUMEDAD
             <span className="text-teal-400">
               {telemetry ? `${Math.round(telemetry.humedad)}%` : "--"}
             </span>

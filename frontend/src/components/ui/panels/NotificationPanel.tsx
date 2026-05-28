@@ -117,7 +117,7 @@ export default function NotificationPanel() {
     <div className="bg-slate-900/70 backdrop-blur-xl h-full rounded-2xl p-6 border border-white/5 shadow-2xl w-80 pointer-events-auto flex flex-col">
       <div className="flex items-baseline justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-white font-bold text-lg">Recommendations</h2>
+          <h2 className="text-white font-bold text-lg">Recomendaciones</h2>
           <p className="text-xs uppercase tracking-[0.25em] text-slate-400 mt-1">
             {modeLabel}
           </p>
