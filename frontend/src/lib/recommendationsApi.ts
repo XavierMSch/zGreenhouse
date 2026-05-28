@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE } from "./api";
+
 const REQUEST_TIMEOUT_MS = 60_000;
 
 type RecommendationResponse = {
@@ -44,8 +45,8 @@ export async function getRecommendation(
   console.log("[recommendationsApi] getRecommendation called", {
     url:
       request.mode === "simulation"
-        ? `${API_BASE_URL}/recomendacion/simulacion`
-        : `${API_BASE_URL}/recomendacion`,
+        ? `${API_BASE}/recomendacion/simulacion`
+        : `${API_BASE}/recomendacion`,
     mode: request.mode,
     plantName: request.plantName,
   });
@@ -55,7 +56,7 @@ export async function getRecommendation(
 
   try {
     const response = await (request.mode === "simulation"
-      ? fetch(`${API_BASE_URL}/recomendacion/simulacion`, {
+      ? fetch(`${API_BASE}/recomendacion/simulacion`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -65,7 +66,7 @@ export async function getRecommendation(
           }),
           signal: controller.signal,
         })
-      : fetch(`${API_BASE_URL}/recomendacion`, {
+      : fetch(`${API_BASE}/recomendacion`, {
           signal: controller.signal,
         }));
 

@@ -7,28 +7,28 @@ import { Thyme } from "../models/plants/Thyme";
 export const PLANTS: PlantData[] = [
   {
     id: 1,
-    name: "mint",
+    name: "menta",
     label: "Menta",
     emoji: "🍃",
     model: Mint,
   },
   {
     id: 2,
-    name: "thyme",
+    name: "tomillo",
     label: "Tomillo",
     emoji: "🌱",
     model: Thyme,
   },
   {
     id: 3,
-    name: "basil",
+    name: "albahaca",
     label: "Albahaca",
     emoji: "🌿",
     model: Basil,
   },
   {
     id: 4,
-    name: "rosemary",
+    name: "romero",
     label: "Romero",
     emoji: "🪴",
     model: Rosemary,

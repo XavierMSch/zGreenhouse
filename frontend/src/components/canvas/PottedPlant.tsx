@@ -1,5 +1,5 @@
 import { PLANTS } from "../../configs/PlantsConfig";
-import { useStore } from "../../hooks/useStore";
+import { useStore } from "../../stores/useStore";
 import { Pot } from "../../models/Pot";
 
 export function PottedPlant() {

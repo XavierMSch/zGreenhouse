@@ -1,4 +1,4 @@
-import { useStore } from "../../../hooks/useStore";
+import { useStore } from "../../../stores/useStore";
 import { setActivePlantId } from "../../../lib/plantApi";
 import type { PlantData } from "../../../interfaces/PlantData";
 

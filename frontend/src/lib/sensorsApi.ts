@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE } from "./api";
 
 export type TelemetriaResponse = {
   id: number;
@@ -12,7 +12,7 @@ export type TelemetriaResponse = {
 export async function getLatestTelemetry(
   plantId: number,
 ): Promise<TelemetriaResponse | null> {
-  const response = await fetch(`${API_BASE_URL}/telemetria/${plantId}`);
+  const response = await fetch(`${API_BASE}/telemetria/${plantId}`);
 
   if (!response.ok) {
     return null;

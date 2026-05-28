@@ -1,6 +1,6 @@
 import { memo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useStore } from "../../hooks/useStore";
+import { useStore } from "../../stores/useStore";
 import { MathUtils, Vector2 } from "three";
 import { ChromaticAberration } from "@react-three/postprocessing";
 import type { ChromaticAberrationEffect } from "postprocessing";

@@ -1,11 +1,11 @@
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE } from "./api";
 
 type ActivePlantResponse = {
   planta_activa_id: number;
 };
 
 export async function getActivePlantId(): Promise<number | null> {
-  const response = await fetch(`${API_BASE_URL}/planta-activa`);
+  const response = await fetch(`${API_BASE}/planta-activa`);
 
   if (!response.ok) {
     return null;
@@ -16,7 +16,7 @@ export async function getActivePlantId(): Promise<number | null> {
 }
 
 export async function setActivePlantId(plantId: number): Promise<void> {
-  await fetch(`${API_BASE_URL}/planta-activa/${plantId}`, {
+  await fetch(`${API_BASE}/planta-activa/${plantId}`, {
     method: "POST",
   });
 }

@@ -5,7 +5,7 @@ import {
   getRecommendation,
   type RecommendationError,
 } from "../../../lib/recommendationsApi";
-import { useStore } from "../../../hooks/useStore";
+import { useStore } from "../../../stores/useStore";
 
 export default function NotificationPanel() {
   const [telemetryNotifications, setTelemetryNotifications] = useState<
@@ -27,28 +27,18 @@ export default function NotificationPanel() {
   const modeLabel = isSimulationMode ? "SIMULACIÓN" : "TIEMPO REAL";
 
   const fetchRecommendation = useCallback(async () => {
-    console.log("[NotificationPanel] fetchRecommendation called", {
-      isSimulationMode,
-      selectedPlant,
-      temperature,
-      humidity,
-      isFetchingRef: isFetchingRef.current,
-    });
     if (isFetchingRef.current) {
-      console.log("[NotificationPanel] Already fetching, skipping");
       return;
     }
     isFetchingRef.current = true;
     setIsLoading(true);
     try {
-      console.log("[NotificationPanel] Calling getRecommendation...");
       const result = await getRecommendation({
         mode: isSimulationMode ? "simulation" : "telemetry",
         plantName: selectedPlant,
         temperatura: temperature,
         humedad: humidity,
       });
-      console.log("[NotificationPanel] getRecommendation result:", result);
       if (result.data) {
         if (isSimulationMode) {
           setSimulationNotifications((prev) => [result.data!, ...prev]);
@@ -68,14 +58,11 @@ export default function NotificationPanel() {
   const fetchRecommendationRef = useRef(fetchRecommendation);
 
   useEffect(() => {
-    console.log("[NotificationPanel] Syncing fetchRecommendationRef");
     fetchRecommendationRef.current = fetchRecommendation;
   }, [fetchRecommendation]);
 
   useEffect(() => {
-    console.log("[NotificationPanel] Polling useEffect", { isSimulationMode });
     if (isSimulationMode) {
-      console.log("[NotificationPanel] Simulation mode, no polling");
       return;
     }
 
@@ -85,24 +72,18 @@ export default function NotificationPanel() {
     const initialDelayMs = 5000;
 
     const fetchOnInterval = async () => {
-      console.log("[NotificationPanel] fetchOnInterval triggered", { isMounted });
       if (!isMounted) {
         return;
       }
       await fetchRecommendationRef.current();
     };
 
-    console.log("[NotificationPanel] Setting up polling timeout", {
-      initialDelayMs,
-    });
     timeoutId = setTimeout(() => {
-      console.log("[NotificationPanel] Initial timeout fired");
       fetchOnInterval();
       intervalId = setInterval(fetchOnInterval, 90000);
     }, initialDelayMs);
 
     return () => {
-      console.log("[NotificationPanel] Polling cleanup");
       isMounted = false;
       if (timeoutId) {
         clearTimeout(timeoutId);

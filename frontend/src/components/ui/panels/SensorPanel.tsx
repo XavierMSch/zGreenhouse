@@ -5,7 +5,7 @@ import SensorSlider from "../interactive/SensorSlider";
 import { getLatestTelemetry } from "../../../lib/sensorsApi";
 import type { TelemetriaResponse } from "../../../lib/sensorsApi";
 import { calculateVpd } from "../../../lib/vpd";
-import { useStore } from "../../../hooks/useStore";
+import { useStore } from "../../../stores/useStore";
 
 export default function SensorPanel() {
   const isSimulationMode = useStore((state) => state.isSimulationMode);
