@@ -1,10 +1,10 @@
 const API_BASE_URL = "http://localhost:8000";
+const REQUEST_TIMEOUT_MS = 60_000;
 
 type RecommendationResponse = {
-  severidad?: string;
-  recomendacion?: string;
-  mensaje?: string;
-  comando?: string | null;
+  mensaje: string;
+  severidad: string;
+  comando: string | null;
 };
 
 type NotificationSeverity = "fatal" | "warning" | "great";
@@ -17,6 +17,13 @@ export type RecommendationNotification = {
 };
 
 export type RecommendationMode = "telemetry" | "simulation";
+
+export type RecommendationError = "timeout" | "server" | "network";
+
+export type RecommendationResult = {
+  data?: RecommendationNotification;
+  error?: RecommendationError;
+};
 
 type RecommendationRequest = {
   mode: RecommendationMode;
@@ -33,30 +40,59 @@ const SEVERITY_MAP: Record<string, NotificationSeverity> = {
 
 export async function getRecommendation(
   request: RecommendationRequest,
-): Promise<RecommendationNotification | null> {
-  const response = await (request.mode === "simulation"
-    ? fetch(`${API_BASE_URL}/recomendacion/simulacion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          planta_nombre: request.plantName,
-          temperatura: request.temperatura,
-          humedad: request.humedad,
-        }),
-      })
-    : fetch(`${API_BASE_URL}/recomendacion`));
-
-  if (!response.ok) {
-    return null;
-  }
-
-  const data = (await response.json()) as RecommendationResponse;
-  const severityKey = (data.severidad ?? "").toLowerCase();
-
-  return {
-    id: Date.now(),
+): Promise<RecommendationResult> {
+  console.log("[recommendationsApi] getRecommendation called", {
+    url:
+      request.mode === "simulation"
+        ? `${API_BASE_URL}/recomendacion/simulacion`
+        : `${API_BASE_URL}/recomendacion`,
+    mode: request.mode,
     plantName: request.plantName,
-    message: data.recomendacion ?? data.mensaje ?? "No recommendation",
-    severity: SEVERITY_MAP[severityKey] ?? "warning",
-  };
+  });
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    const response = await (request.mode === "simulation"
+      ? fetch(`${API_BASE_URL}/recomendacion/simulacion`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            planta_nombre: request.plantName,
+            temperatura: request.temperatura,
+            humedad: request.humedad,
+          }),
+          signal: controller.signal,
+        })
+      : fetch(`${API_BASE_URL}/recomendacion`, {
+          signal: controller.signal,
+        }));
+
+    console.log("[recommendationsApi] response status:", response.status);
+
+    if (!response.ok) {
+      return { error: "server" };
+    }
+
+    const data = (await response.json()) as RecommendationResponse;
+    const severityKey = (data.severidad ?? "").toLowerCase();
+
+    return {
+      data: {
+        id: Date.now(),
+        plantName: request.plantName,
+        message: data.mensaje ?? "Sin recomendación disponible",
+        severity: SEVERITY_MAP[severityKey] ?? "warning",
+      },
+    };
+  } catch (err) {
+    console.log("[recommendationsApi] catch error:", err);
+    if (err instanceof DOMException && err.name === "AbortError") {
+      return { error: "timeout" };
+    }
+    return { error: "network" };
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }

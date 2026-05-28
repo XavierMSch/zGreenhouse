@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "../../hooks/useStore";
 import { MathUtils, Vector2 } from "three";
@@ -7,7 +7,7 @@ import type { ChromaticAberrationEffect } from "postprocessing";
 
 const defaultOffset = new Vector2(0, 0);
 
-export function GreenhouseTemperatureEffects() {
+export const GreenhouseTemperatureEffects = memo(function GreenhouseTemperatureEffects() {
   const aberrationRef = useRef<ChromaticAberrationEffect>(null);
 
   useFrame((state) => {
@@ -45,4 +45,4 @@ export function GreenhouseTemperatureEffects() {
   });
 
   return <ChromaticAberration ref={aberrationRef} offset={defaultOffset} />;
-}
+});

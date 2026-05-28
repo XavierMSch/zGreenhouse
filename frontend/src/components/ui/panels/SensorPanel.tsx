@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { SENSORS } from "../../../configs/SensorsConfig";
+import { PLANTS } from "../../../configs/PlantsConfig";
 import SensorSlider from "../interactive/SensorSlider";
-import { getActivePlantId } from "../../../lib/plantApi";
 import { getLatestTelemetry } from "../../../lib/sensorsApi";
 import type { TelemetriaResponse } from "../../../lib/sensorsApi";
 import { calculateVpd } from "../../../lib/vpd";
@@ -11,17 +11,19 @@ export default function SensorPanel() {
   const isSimulationMode = useStore((state) => state.isSimulationMode);
   const setSimulationMode = useStore((state) => state.setSimulationMode);
   const setTelemetrySensor = useStore((state) => state.setTelemetrySensor);
+  const selectedPlant = useStore((state) => state.selectedPlant);
   const [telemetry, setTelemetry] = useState<TelemetriaResponse | null>(null);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
   const [isTelemetryLoading, setIsTelemetryLoading] = useState(false);
   const sensors = useStore((state) => state.sensors);
   const simulationVpd = calculateVpd(sensors.temperature, sensors.humidity);
 
-  // 3. Create a toggle function
+  const plantId = PLANTS.find((p) => p.name === selectedPlant)?.id ?? null;
+
   const toggleMode = () => setSimulationMode(!isSimulationMode);
 
   useEffect(() => {
-    if (isSimulationMode) {
+    if (isSimulationMode || !plantId) {
       return;
     }
 
@@ -31,16 +33,6 @@ export default function SensorPanel() {
     const fetchTelemetry = async () => {
       setIsTelemetryLoading(true);
       setTelemetryError(null);
-
-      const plantId = await getActivePlantId();
-      if (!plantId) {
-        if (isMounted) {
-          setTelemetry(null);
-          setTelemetryError("No active plant");
-          setIsTelemetryLoading(false);
-        }
-        return;
-      }
 
       const latestTelemetry = await getLatestTelemetry(plantId);
       if (isMounted) {
@@ -64,7 +56,7 @@ export default function SensorPanel() {
         clearInterval(intervalId);
       }
     };
-  }, [isSimulationMode, setTelemetrySensor]);
+  }, [isSimulationMode, plantId, setTelemetrySensor]);
   return (
     <div className="bg-slate-900/70 backdrop-blur-xl rounded-2xl p-6 border border-white/5 shadow-2xl w-80 pointer-events-auto">
       <div className="flex justify-between items-center mb-6">

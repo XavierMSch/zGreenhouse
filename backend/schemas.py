@@ -39,21 +39,10 @@ class TelemetriaSimulacion(TelemetriaBase):
 
 
 # RecomendacionLLM
-class RecomendacionLLMBase(BaseModel):
-    severidad: str  # "verde", "amarillo", "rojo"
+class RecomendacionResponse(BaseModel):
     mensaje: str
-    contexto_analizado: str  # Snapshot JSON en formato texto
-    planta_id: int
-
-
-class RecomendacionLLMCreate(RecomendacionLLMBase):
-    pass
-
-
-class RecomendacionLLM(RecomendacionLLMBase):
-    id: int
-    timestamp: datetime
-    model_config = ConfigDict(from_attributes=True)
+    severidad: str
+    comando: str | None = None
 
 
 # Simulacion

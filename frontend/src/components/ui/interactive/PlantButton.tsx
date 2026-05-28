@@ -10,15 +10,18 @@ export default function PlantButton(props: PlantButtonProps) {
   const plantData = props.data;
   const selectedPlant = useStore((s) => s.selectedPlant);
   const setSelectedPlant = useStore((s) => s.setSelectedPlant);
+  const isSimulationMode = useStore((s) => s.isSimulationMode);
   const active = selectedPlant === plantData.name;
   return (
     <button
       key={plantData.name}
       onClick={() => {
         setSelectedPlant(plantData.name);
-        void setActivePlantId(plantData.id).catch((error) => {
-          console.error("Failed to update active plant", error);
-        });
+        if (!isSimulationMode) {
+          void setActivePlantId(plantData.id).catch((error) => {
+            console.error("Failed to update active plant", error);
+          });
+        }
       }}
       className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all
             ${
