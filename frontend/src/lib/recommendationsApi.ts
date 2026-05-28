@@ -1,39 +1,14 @@
+import type { Severity } from "../interfaces/NotificationData";
+import type {
+  RecommendationResult,
+  RecommendationRequest,
+  RecommendationResponse,
+} from "../interfaces/Recommendations";
 import { API_BASE } from "./api";
 
 const REQUEST_TIMEOUT_MS = 60_000;
 
-type RecommendationResponse = {
-  mensaje: string;
-  severidad: string;
-  comando: string | null;
-};
-
-type NotificationSeverity = "fatal" | "warning" | "great";
-
-export type RecommendationNotification = {
-  id: number;
-  plantName?: string;
-  message: string;
-  severity: NotificationSeverity;
-};
-
-export type RecommendationMode = "telemetry" | "simulation";
-
-export type RecommendationError = "timeout" | "server" | "network";
-
-export type RecommendationResult = {
-  data?: RecommendationNotification;
-  error?: RecommendationError;
-};
-
-type RecommendationRequest = {
-  mode: RecommendationMode;
-  plantName?: string;
-  temperatura?: number;
-  humedad?: number;
-};
-
-const SEVERITY_MAP: Record<string, NotificationSeverity> = {
+const SEVERITY_MAP: Record<string, Severity> = {
   alta: "fatal",
   media: "warning",
   baja: "great",

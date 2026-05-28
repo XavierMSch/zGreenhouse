@@ -14,7 +14,6 @@ export default function PlantButton(props: PlantButtonProps) {
   const active = selectedPlant === plantData.name;
   return (
     <button
-      key={plantData.name}
       onClick={() => {
         setSelectedPlant(plantData.name);
         if (!isSimulationMode) {

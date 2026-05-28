@@ -1,4 +1,4 @@
-type Severity = "fatal" | "warning" | "great";
+export type Severity = "fatal" | "warning" | "great";
 
 export interface NotificationData {
   id: number;

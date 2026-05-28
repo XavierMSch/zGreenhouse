@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NotificationData } from "../../../interfaces/NotificationData";
+import type { RecommendationError } from "../../../interfaces/Recommendations";
 import NotificationCard from "../interactive/NotificationCard";
-import {
-  getRecommendation,
-  type RecommendationError,
-} from "../../../lib/recommendationsApi";
+import { getRecommendation } from "../../../lib/recommendationsApi";
 import { useStore } from "../../../stores/useStore";
 
 export default function NotificationPanel() {

@@ -3,7 +3,7 @@ import { SENSORS } from "../../../configs/SensorsConfig";
 import { PLANTS } from "../../../configs/PlantsConfig";
 import SensorSlider from "../interactive/SensorSlider";
 import { getLatestTelemetry } from "../../../lib/sensorsApi";
-import type { TelemetriaResponse } from "../../../lib/sensorsApi";
+import type { TelemetriaResponse } from "../../../interfaces/SensorData";
 import { calculateVpd } from "../../../lib/vpd";
 import { useStore } from "../../../stores/useStore";
 

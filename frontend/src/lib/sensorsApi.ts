@@ -1,13 +1,5 @@
+import type { TelemetriaResponse } from "../interfaces/SensorData";
 import { API_BASE } from "./api";
-
-export type TelemetriaResponse = {
-  id: number;
-  planta_id: number;
-  timestamp: string;
-  temperatura: number;
-  humedad: number;
-  vpd: number;
-};
 
 export async function getLatestTelemetry(
   plantId: number,
