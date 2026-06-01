@@ -1,6 +1,7 @@
 import NotificationPanel from './panels/NotificationPanel';
 import PlantPanel from './panels/PlantPanel';
 import SensorPanel from './panels/SensorPanel';
+import WindowPanel from './panels/WindowPanel';
 
 export function HUDLayout() {
   return (
@@ -12,6 +13,7 @@ export function HUDLayout() {
       <div className="h-full right-8 top-8">
         <NotificationPanel />
       </div>
+      <WindowPanel />
     </div>
   )
 }
