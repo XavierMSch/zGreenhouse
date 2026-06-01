@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 
-type Plant = "basil" | "rosemary" | "mint" | "thyme";
+type Plant = "albahaca" | "menta" | "romero" | "tomillo";
 
 export interface PlantData {
   id: number;

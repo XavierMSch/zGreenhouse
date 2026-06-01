@@ -1,5 +1,5 @@
-import { useStore } from "../../../hooks/useStore";
-import { setActivePlantId } from "../../../lib/plantApi";
+import { useStore } from "../../../stores/useStore";
+import { setActivePlantId } from "../../../api/plantApi";
 import type { PlantData } from "../../../interfaces/PlantData";
 
 interface PlantButtonProps {
@@ -14,7 +14,6 @@ export default function PlantButton(props: PlantButtonProps) {
   const active = selectedPlant === plantData.name;
   return (
     <button
-      key={plantData.name}
       onClick={() => {
         setSelectedPlant(plantData.name);
         if (!isSimulationMode) {

@@ -1,4 +1,4 @@
-import { useStore } from "../../hooks/useStore";
+import { useStore } from "../../stores/useStore";
 import { Color } from "three";
 
 const temperatureStops = [

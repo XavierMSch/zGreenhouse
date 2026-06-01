@@ -1,8 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
-import { Greenhouse } from "./canvas/Greenhouse";
+import { Greenhouse } from "./Greenhouse";
 import { EffectComposer } from "@react-three/postprocessing";
-import { GreenhouseTemperatureEffects } from "./canvas/GreenhouseTemperaturaEffects";
+import { GreenhouseTemperatureEffects } from "./GreenhouseTemperaturaEffects";
 
 export default function Scene() {
   return (

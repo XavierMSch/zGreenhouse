@@ -1,38 +1,14 @@
-const API_BASE_URL = "http://localhost:8000";
+import type { Severity } from "../interfaces/NotificationData";
+import type {
+  RecommendationResult,
+  RecommendationRequest,
+  RecommendationResponse,
+} from "../interfaces/Recommendations";
+import { API_BASE } from "./api";
+
 const REQUEST_TIMEOUT_MS = 60_000;
 
-type RecommendationResponse = {
-  mensaje: string;
-  severidad: string;
-  comando: string | null;
-};
-
-type NotificationSeverity = "fatal" | "warning" | "great";
-
-export type RecommendationNotification = {
-  id: number;
-  plantName?: string;
-  message: string;
-  severity: NotificationSeverity;
-};
-
-export type RecommendationMode = "telemetry" | "simulation";
-
-export type RecommendationError = "timeout" | "server" | "network";
-
-export type RecommendationResult = {
-  data?: RecommendationNotification;
-  error?: RecommendationError;
-};
-
-type RecommendationRequest = {
-  mode: RecommendationMode;
-  plantName?: string;
-  temperatura?: number;
-  humedad?: number;
-};
-
-const SEVERITY_MAP: Record<string, NotificationSeverity> = {
+const SEVERITY_MAP: Record<string, Severity> = {
   alta: "fatal",
   media: "warning",
   baja: "great",
@@ -44,8 +20,8 @@ export async function getRecommendation(
   console.log("[recommendationsApi] getRecommendation called", {
     url:
       request.mode === "simulation"
-        ? `${API_BASE_URL}/recomendacion/simulacion`
-        : `${API_BASE_URL}/recomendacion`,
+        ? `${API_BASE}/recomendacion/simulacion`
+        : `${API_BASE}/recomendacion`,
     mode: request.mode,
     plantName: request.plantName,
   });
@@ -55,7 +31,7 @@ export async function getRecommendation(
 
   try {
     const response = await (request.mode === "simulation"
-      ? fetch(`${API_BASE_URL}/recomendacion/simulacion`, {
+      ? fetch(`${API_BASE}/recomendacion/simulacion`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -65,7 +41,7 @@ export async function getRecommendation(
           }),
           signal: controller.signal,
         })
-      : fetch(`${API_BASE_URL}/recomendacion`, {
+      : fetch(`${API_BASE}/recomendacion`, {
           signal: controller.signal,
         }));
 

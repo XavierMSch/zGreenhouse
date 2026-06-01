@@ -1,4 +1,4 @@
-import { useStore } from "../../../hooks/useStore";
+import { useStore } from "../../../stores/useStore";
 import type { SensorData } from "../../../interfaces/SensorData";
 
 interface SensorSliderProps {

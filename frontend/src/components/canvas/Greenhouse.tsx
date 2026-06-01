@@ -2,7 +2,7 @@ import { Mask } from "@react-three/drei";
 import { MathUtils } from "three";
 import { GreenhouseFrame } from "../../models/GreenhouseFrame";
 import { Snowflakes } from "../../models/effects/Snowflakes";
-import { useStore } from "../../hooks/useStore";
+import { useStore } from "../../stores/useStore";
 import { PottedPlant } from "../canvas/PottedPlant";
 import { GreenhouseTemperature } from "./GreenhouseTemperature";
 
