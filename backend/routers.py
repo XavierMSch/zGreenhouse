@@ -45,6 +45,25 @@ def set_planta_activa(planta_id: int, db: Session = Depends(database.get_db)):
     return {"planta_activa_id": planta_id}
 
 
+# Actuador ventana
+@router.get("/actuador/ventana", response_model=schemas.VentanaResponse)
+def get_ventana(db: Session = Depends(database.get_db)):
+    estado = db.query(models.EstadoSistema).filter(models.EstadoSistema.id == 1).first()
+    if not estado:
+        raise HTTPException(status_code=404, detail="Sistema no inicializado")
+    return schemas.VentanaResponse(ventana_abierta=estado.ventana_abierta)
+
+
+@router.put("/actuador/ventana", response_model=schemas.VentanaResponse)
+def set_ventana(data: schemas.VentanaRequest, db: Session = Depends(database.get_db)):
+    estado = db.query(models.EstadoSistema).filter(models.EstadoSistema.id == 1).first()
+    if not estado:
+        raise HTTPException(status_code=404, detail="Sistema no inicializado")
+    estado.ventana_abierta = data.abierta
+    db.commit()
+    return schemas.VentanaResponse(ventana_abierta=estado.ventana_abierta)
+
+
 # Telemetría
 @router.post("/telemetria", response_model=schemas.Telemetria)
 def create_telemetria(
@@ -125,6 +144,7 @@ async def get_recomendacion(db: Session = Depends(database.get_db)):
     prompt_usuario = llm_service.construir_prompt_usuario(
         planta=planta.nombre,
         contexto_resumen=contexto_resumen,
+        ventana_abierta=estado_sistema.ventana_abierta,
     )
 
     try:
@@ -143,6 +163,10 @@ async def get_recomendacion(db: Session = Depends(database.get_db)):
     db.add(db_rec)
     db.commit()
     db.refresh(db_rec)
+
+    if rec.comando and rec.comando.upper() in ("ABRIR", "CERRAR"):
+        estado_sistema.ventana_abierta = rec.comando.upper() == "ABRIR"
+        db.commit()
 
     return schemas.RecomendacionResponse(
         mensaje=rec.mensaje,

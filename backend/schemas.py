@@ -50,3 +50,12 @@ class SimulacionRequest(BaseModel):
     planta_nombre: str
     temperatura: float
     humedad: float
+
+
+# Actuador
+class VentanaRequest(BaseModel):
+    abierta: bool
+
+
+class VentanaResponse(BaseModel):
+    ventana_abierta: bool
