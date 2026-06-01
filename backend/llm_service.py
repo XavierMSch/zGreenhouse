@@ -36,8 +36,14 @@ class RespuestaLLM:
         mensaje = data.get("mensaje") or "Sin recomendación disponible"
         severidad = data.get("severidad") or "baja"
         comando = data.get("comando")
-        if comando and isinstance(comando, str) and comando.lower() == "none":
-            comando = None
+        if comando and isinstance(comando, str):
+            cmd = comando.lower().strip()
+            if cmd in ("none", "nada", "no", ""):
+                comando = None
+            elif cmd.startswith("abr"):
+                comando = "abrir"
+            elif cmd.startswith("cer") or cmd.startswith("cie"):
+                comando = "cerrar"
         return cls(
             mensaje=str(mensaje),
             severidad=str(severidad),
@@ -58,11 +64,14 @@ SYSTEM_PROMPT = _load_system_prompt()
 def construir_prompt_usuario(
     planta: str,
     contexto_resumen: dict[str, Any],
+    ventana_abierta: bool | None = None,
 ) -> str:
     payload: dict[str, Any] = {
         "planta": planta,
         "contexto": contexto_resumen,
     }
+    if ventana_abierta is not None:
+        payload["ventana_abierta"] = ventana_abierta
     return json.dumps(payload, ensure_ascii=False)
 
 

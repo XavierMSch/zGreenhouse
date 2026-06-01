@@ -2,6 +2,7 @@ from typing import Any
 
 from models import Telemetria
 
+_SEVERIDAD_NIVEL: dict[str, int] = {"baja": 0, "media": 1, "alta": 2}
 
 REGLAS_CULTIVO: dict[str, Any] = {
     "albahaca": {
@@ -142,3 +143,94 @@ def resumir_telemetria(
         "minutos_registro": minutos_registro,
         "total_lecturas": len(telemetrias),
     }
+
+
+def generar_eventos_lectura(
+    temperatura: float,
+    humedad: float,
+    vpd: float,
+    nombre_planta: str,
+) -> list[dict[str, Any]]:
+    if nombre_planta.lower() not in REGLAS_CULTIVO:
+        return []
+
+    rangos = REGLAS_CULTIVO[nombre_planta.lower()]["rangos_optimos"]
+    eventos: list[dict[str, Any]] = []
+
+    if temperatura < rangos["temperatura_min"]:
+        eventos.append({"tipo": "temperatura_baja", "valor": temperatura})
+    elif temperatura > rangos["temperatura_max"]:
+        eventos.append({"tipo": "temperatura_alta", "valor": temperatura})
+
+    if humedad < rangos["humedad_min"]:
+        eventos.append({"tipo": "humedad_baja", "valor": humedad})
+    elif humedad > rangos["humedad_max"]:
+        eventos.append({"tipo": "humedad_alta", "valor": humedad})
+
+    if vpd < rangos["vpd_min"]:
+        eventos.append({"tipo": "vpd_bajo", "valor": vpd})
+    elif vpd > rangos["vpd_max"]:
+        eventos.append({"tipo": "vpd_alto", "valor": vpd})
+
+    return eventos
+
+
+def validar_severidad(
+    severidad_llm: str,
+    actual: dict[str, float] | None,
+    nombre_planta: str | None,
+) -> str:
+    if not nombre_planta or not actual:
+        return severidad_llm
+
+    nombre_lower = nombre_planta.lower()
+    if nombre_lower not in REGLAS_CULTIVO:
+        return severidad_llm
+
+    rangos = REGLAS_CULTIVO[nombre_lower]["rangos_optimos"]
+    severidad_reglas = "baja"
+
+    temp = actual.get("temperatura")
+    if temp is not None:
+        desviacion = max(
+            0,
+            rangos["temperatura_min"] - temp,
+            temp - rangos["temperatura_max"],
+        )
+        if desviacion > 10:
+            severidad_reglas = "alta"
+        elif desviacion > 3:
+            severidad_reglas = "media"
+
+    hum = actual.get("humedad")
+    if hum is not None:
+        desviacion = max(
+            0,
+            rangos["humedad_min"] - hum,
+            hum - rangos["humedad_max"],
+        )
+        if desviacion > 10:
+            severidad_reglas = "media"
+
+    vpd_val = actual.get("vpd")
+    if vpd_val is not None:
+        vpd_min = rangos["vpd_min"]
+        vpd_max = rangos["vpd_max"]
+        if vpd_val <= 0:
+            severidad_reglas = "media"
+        else:
+            desviacion_rel = max(
+                0,
+                (vpd_min - vpd_val) / vpd_val,
+                (vpd_val - vpd_max) / vpd_min,
+            )
+            if desviacion_rel > 2.0:
+                severidad_reglas = "alta"
+            elif desviacion_rel > 0.7:
+                severidad_reglas = "media"
+
+    if _SEVERIDAD_NIVEL.get(severidad_llm, 0) >= _SEVERIDAD_NIVEL.get(
+        severidad_reglas, 0
+    ):
+        return severidad_llm
+    return severidad_reglas

@@ -9,7 +9,11 @@ import llm_service
 import models
 import schemas
 import vpd
-from telemetria_analisis import resumir_telemetria
+from telemetria_analisis import (
+    resumir_telemetria,
+    validar_severidad,
+    generar_eventos_lectura,
+)
 
 router = APIRouter()
 
@@ -152,12 +156,18 @@ async def get_recomendacion(db: Session = Depends(database.get_db)):
     except llm_service.LLMServiceError as e:
         raise HTTPException(status_code=503, detail=str(e))
 
+    rec.severidad = validar_severidad(
+        rec.severidad,
+        contexto_completo[-1] if contexto_completo else None,
+        planta.nombre,
+    )
+
     db_rec = models.RecomendacionLLM(
         planta_id=planta.id,
         mensaje=rec.mensaje,
         severidad=rec.severidad,
         comando=rec.comando,
-        contexto=json.dumps(contexto_completo),
+        contexto=json.dumps({"crudo": contexto_completo, "resumen": contexto_resumen}),
     )
 
     db.add(db_rec)
@@ -206,7 +216,9 @@ async def get_recomendacion_simulacion(data: schemas.SimulacionRequest):
             "humedad": "estable",
             "vpd": "estable",
         },
-        "eventos": [],
+        "eventos": generar_eventos_lectura(
+            data.temperatura, data.humedad, vpd_val, data.planta_nombre
+        ),
         "minutos_registro": 0,
         "total_lecturas": 1,
     }
@@ -219,6 +231,12 @@ async def get_recomendacion_simulacion(data: schemas.SimulacionRequest):
         rec = await llm_service.obtener_recomendacion(prompt_usuario)
     except llm_service.LLMServiceError as e:
         raise HTTPException(status_code=503, detail=str(e))
+
+    rec.severidad = validar_severidad(
+        rec.severidad,
+        contexto_resumen["actual"],
+        data.planta_nombre,
+    )
 
     return schemas.RecomendacionResponse(
         mensaje=rec.mensaje,
