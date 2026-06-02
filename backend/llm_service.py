@@ -33,9 +33,17 @@ class RespuestaLLM:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "RespuestaLLM":
-        mensaje = data.get("mensaje") or "Sin recomendación disponible"
-        severidad = data.get("severidad") or "baja"
-        comando = data.get("comando")
+        mensaje = "Sin recomendación disponible"
+        severidad = "baja"
+        comando = None
+        for k, v in data.items():
+            kl = k.lower()
+            if kl.startswith("s"):
+                severidad = v or "baja"
+            elif kl.startswith("m"):
+                mensaje = v or "Sin recomendación disponible"
+            elif kl.startswith("c"):
+                comando = v
         if comando and isinstance(comando, str):
             cmd = comando.lower().strip()
             if cmd in ("none", "nada", "no", ""):
@@ -80,6 +88,10 @@ async def obtener_recomendacion(prompt_usuario: str) -> RespuestaLLM:
 
     for attempt in range(MAX_RETRIES + 1):
         try:
+            print(
+                "\n[LLM DEBUG] Prompt usuario enviado a Ollama:\n"
+                + json.dumps(json.loads(prompt_usuario), indent=2, ensure_ascii=False)
+            )
             response: Any = await OLLAMA_CLIENT.chat(
                 model=MODEL_NAME,
                 messages=[
@@ -94,6 +106,11 @@ async def obtener_recomendacion(prompt_usuario: str) -> RespuestaLLM:
                 data = json.loads(contenido)
             else:
                 data = contenido
+
+            print(
+                "\n[LLM DEBUG] Respuesta del LLM:\n"
+                + json.dumps(data, indent=2, ensure_ascii=False)
+            )
 
             return RespuestaLLM.from_dict(data)
 
