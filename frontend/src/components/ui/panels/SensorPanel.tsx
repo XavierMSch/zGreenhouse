@@ -77,7 +77,7 @@ export default function SensorPanel() {
             {!isTelemetryLoading && telemetryError && telemetryError}
             {!isTelemetryLoading && !telemetryError && telemetry && (
               <>
-                Actualizado {new Date(telemetry.timestamp).toLocaleTimeString()}
+                Actualizado {new Date(telemetry.timestamp + 'Z').toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
               </>
             )}
           </div>
