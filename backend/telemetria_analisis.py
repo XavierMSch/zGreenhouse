@@ -209,7 +209,9 @@ def validar_severidad(
             rangos["humedad_min"] - hum,
             hum - rangos["humedad_max"],
         )
-        if desviacion > 10:
+        if desviacion > 20:
+            severidad_reglas = "alta"
+        elif desviacion > 10:
             severidad_reglas = "media"
 
     vpd_val = actual.get("vpd")
@@ -224,9 +226,9 @@ def validar_severidad(
                 (vpd_min - vpd_val) / vpd_val,
                 (vpd_val - vpd_max) / vpd_min,
             )
-            if desviacion_rel > 2.0:
+            if desviacion_rel > 1.0:
                 severidad_reglas = "alta"
-            elif desviacion_rel > 0.7:
+            elif desviacion_rel > 0.4:
                 severidad_reglas = "media"
 
     if _SEVERIDAD_NIVEL.get(severidad_llm, 0) >= _SEVERIDAD_NIVEL.get(
